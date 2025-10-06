@@ -1,0 +1,40 @@
+# Git files
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+tmp/
+*.log
+bin/
+
+# Web source (only dist is needed)
+web/src/
+web/node_modules/
+web/package*.json
+web/vite.config.ts
+web/tsconfig*.json
+web/public/
+
+# Test files
+*_test.go
+test/
+testdata/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*.yml

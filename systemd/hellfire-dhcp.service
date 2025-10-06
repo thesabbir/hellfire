@@ -1,0 +1,19 @@
+[Unit]
+Description=Hellfire DHCP/DNS Configuration Service
+Documentation=https://github.com/yourusername/hellfire
+After=network.target hellfire-network.service
+Requires=hellfire-network.service
+Before=dnsmasq.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# Apply DHCP/DNS configuration from UCI config
+ExecStart=/usr/local/bin/hf dhcp apply --config-dir=/etc/config
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

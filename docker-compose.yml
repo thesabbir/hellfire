@@ -1,0 +1,47 @@
+services:
+  router:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hellfire-router
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./examples/config:/etc/config
+      - hellfire-data:/var/lib/hellfire
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - systemd-tmp:/run
+      - systemd-tmpfs:/run/lock
+    tmpfs:
+      - /tmp
+    networks:
+      - router-net
+    stop_signal: SIGRTMIN+3
+    stop_grace_period: 30s
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: hellfire-client
+    command: sleep infinity
+    depends_on:
+      - router
+    networks:
+      - router-net
+
+networks:
+  router-net:
+    driver: bridge
+
+volumes:
+  hellfire-data:
+  systemd-tmp:
+  systemd-tmpfs:

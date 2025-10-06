@@ -1,0 +1,720 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "UCI-like configuration management system for Debian routers",
+        "title": "Hellfire API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Sabbir Ahmed",
+            "url": "https://github.com/thesabbir/hellfire"
+        },
+        "license": {
+            "name": "GPL-3.0",
+            "url": "https://www.gnu.org/licenses/gpl-3.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8888",
+    "basePath": "/api",
+    "paths": {
+        "/auth/csrf": {
+            "get": {
+                "description": "Get a CSRF token for making authenticated state-changing requests",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get CSRF token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate user and get session token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User login",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.loginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.loginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Invalidate current session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get information about the current authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bootstrap": {
+            "get": {
+                "description": "Get system metadata including initialization status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "System bootstrap metadata",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/changes": {
+            "get": {
+                "description": "Get list of staged configuration changes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Get staged changes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/commit": {
+            "post": {
+                "description": "Commit staged configuration changes to the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Commit changes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/config/{name}": {
+            "get": {
+                "description": "Get entire configuration file",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Get configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Configuration name (e.g., network, firewall)",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/config/{name}/{section}": {
+            "get": {
+                "description": "Get a specific section from configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Get configuration section",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Configuration name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Section name or type",
+                        "name": "section",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/config/{name}/{section}/{option}": {
+            "get": {
+                "description": "Get a specific option value from a section",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Get configuration option",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Configuration name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Section name",
+                        "name": "section",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Option key",
+                        "name": "option",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Set a configuration option value (staged, requires commit)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Set configuration option",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Configuration name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Section name",
+                        "name": "section",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Option key",
+                        "name": "option",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Option value",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.SetOptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Check if the API server is running",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/onboarding": {
+            "post": {
+                "description": "Create the first admin user during system onboarding",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Create initial admin user",
+                "parameters": [
+                    {
+                        "description": "Admin user details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.onboardingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.loginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/revert": {
+            "post": {
+                "description": "Revert all staged configuration changes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Revert changes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/validate": {
+            "post": {
+                "description": "Validate staged configuration changes without applying them (dry-run)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "Validate staged changes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "db.Role": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "operator",
+                "viewer"
+            ],
+            "x-enum-comments": {
+                "RoleAdmin": "Full access",
+                "RoleOperator": "Read + write (no user management)",
+                "RoleViewer": "Read-only"
+            },
+            "x-enum-varnames": [
+                "RoleAdmin",
+                "RoleOperator",
+                "RoleViewer"
+            ]
+        },
+        "db.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_login_at": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/db.Role"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.SetOptionRequest": {
+            "type": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                }
+            }
+        },
+        "main.loginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.loginResponse": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/db.User"
+                }
+            }
+        },
+        "main.onboardingRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        }
+    }
+}

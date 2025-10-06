@@ -1,0 +1,20 @@
+# Network configuration
+
+config interface 'wan'
+	option proto 'static'
+	option ipaddr '192.168.1.1'
+	option netmask '255.255.255.0'
+	option gateway '192.168.1.254'
+	list dns '8.8.8.8'
+	list dns '1.1.1.1'
+
+config interface 'lan'
+	option proto 'static'
+	option ipaddr '10.0.0.1'
+	option netmask '255.255.255.0'
+
+config route
+	option interface 'wan'
+	option target '0.0.0.0'
+	option netmask '0.0.0.0'
+	option gateway '192.168.1.254'

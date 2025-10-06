@@ -1,0 +1,30 @@
+FROM debian:trixie-slim
+
+# Install testing and networking tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    net-tools \
+    iputils-ping \
+    traceroute \
+    dnsutils \
+    nmap \
+    tcpdump \
+    iperf3 \
+    mtr \
+    netcat-openbsd \
+    iproute2 \
+    bind9-dnsutils \
+    httping \
+    socat \
+    nftables \
+    iptables \
+    vim \
+    less \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /root
+
+CMD ["sleep", "infinity"]
